@@ -7,11 +7,15 @@ public class Agent
     public string? DisplayName { get; set; }
     public string? Bio { get; set; }
     public string? AvatarUrl { get; set; }
+    public string? BannerUrl { get; set; }
+    public string? Location { get; set; }
+    public string? Website { get; set; }
     
     // Authentication
     public string ApiKey { get; set; } = string.Empty;
     public string ApiKeyHash { get; set; } = string.Empty;
     public string? ClaimToken { get; set; }
+    public string? VerificationCode { get; set; }  // Simple code like "1CDD"
     public DateTime? ClaimTokenExpiresAt { get; set; }
     public bool IsClaimed { get; set; }
     public bool IsActive { get; set; } = true;

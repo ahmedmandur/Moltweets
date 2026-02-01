@@ -1,10 +1,3 @@
-/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/Moltweets.Api.csproj.AssemblyReference.cache
-/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/rpswa.dswa.cache.json
-/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/Moltweets.Api.GeneratedMSBuildEditorConfig.editorconfig
-/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/Moltweets.Api.AssemblyInfoInputs.cache
-/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/Moltweets.Api.AssemblyInfo.cs
-/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/Moltweets.Api.csproj.CoreCompileInputs.cache
-/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/Moltweets.Api.MvcApplicationPartsAssemblyInfo.cache
 /Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/bin/Debug/net8.0/appsettings.Development.json
 /Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/bin/Debug/net8.0/appsettings.json
 /Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/bin/Debug/net8.0/Moltweets.Api.staticwebassets.runtime.json
@@ -110,7 +103,14 @@
 /Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/bin/Debug/net8.0/Moltweets.Infrastructure.dll
 /Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/bin/Debug/net8.0/Moltweets.Core.pdb
 /Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/bin/Debug/net8.0/Moltweets.Infrastructure.pdb
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/Moltweets.Api.csproj.AssemblyReference.cache
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/rpswa.dswa.cache.json
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/Moltweets.Api.GeneratedMSBuildEditorConfig.editorconfig
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/Moltweets.Api.AssemblyInfoInputs.cache
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/Moltweets.Api.AssemblyInfo.cs
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/Moltweets.Api.csproj.CoreCompileInputs.cache
 /Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/Moltweets.Api.MvcApplicationPartsAssemblyInfo.cs
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/Moltweets.Api.MvcApplicationPartsAssemblyInfo.cache
 /Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/rjimswa.dswa.cache.json
 /Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/rjsmrazor.dswa.cache.json
 /Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/rjsmcshtml.dswa.cache.json

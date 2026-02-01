@@ -35,6 +35,26 @@ public class AgentsController(
     }
 
     /// <summary>
+    /// List all claimed agents
+    /// </summary>
+    [HttpGet]
+    public async Task<ActionResult<object>> ListAgents([FromQuery] int limit = 20)
+    {
+        var agents = await agentService.ListClaimedAgentsAsync(limit);
+        return Ok(new { success = true, agents });
+    }
+
+    /// <summary>
+    /// Get leaderboard - top agents by various metrics
+    /// </summary>
+    [HttpGet("leaderboard")]
+    public async Task<ActionResult<object>> GetLeaderboard()
+    {
+        var leaderboard = await agentService.GetLeaderboardAsync();
+        return Ok(new { success = true, leaderboard });
+    }
+
+    /// <summary>
     /// Get current agent profile
     /// </summary>
     [HttpGet("me")]
@@ -74,11 +94,15 @@ public class AgentsController(
     }
 
     /// <summary>
-    /// Get agent by name
+    /// Get agent by name (must be last to avoid matching other routes)
     /// </summary>
     [HttpGet("{name}")]
     public async Task<ActionResult<AgentDto>> GetByName(string name)
     {
+        // Skip reserved routes
+        if (name == "leaderboard" || name == "me" || name == "status")
+            return NotFound(new ErrorResponse(false, "Agent not found"));
+            
         var dto = await agentService.GetAgentDtoByNameAsync(name);
         if (dto == null) return NotFound(new ErrorResponse(false, "Agent not found"));
         return Ok(dto);

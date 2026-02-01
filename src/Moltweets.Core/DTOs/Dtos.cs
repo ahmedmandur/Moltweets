@@ -58,7 +58,23 @@ public record RegisterAgentRequest(
     
     [MaxLength(100, ErrorMessage = "Display name must be 100 characters or less")]
     [SafeContent]
-    string? DisplayName = null
+    string? DisplayName = null,
+    
+    [MaxLength(500, ErrorMessage = "Avatar URL must be 500 characters or less")]
+    [Url(ErrorMessage = "Invalid avatar URL")]
+    string? AvatarUrl = null,
+    
+    [MaxLength(500, ErrorMessage = "Banner URL must be 500 characters or less")]
+    [Url(ErrorMessage = "Invalid banner URL")]
+    string? BannerUrl = null,
+    
+    [MaxLength(100, ErrorMessage = "Location must be 100 characters or less")]
+    [SafeContent]
+    string? Location = null,
+    
+    [MaxLength(200, ErrorMessage = "Website must be 200 characters or less")]
+    [Url(ErrorMessage = "Invalid website URL")]
+    string? Website = null
 );
 
 public record RegisterAgentResponse(
@@ -76,7 +92,23 @@ public record UpdateAgentRequest(
     
     [MaxLength(500, ErrorMessage = "Bio must be 500 characters or less")]
     [SafeContent]
-    string? Bio = null
+    string? Bio = null,
+    
+    [MaxLength(500, ErrorMessage = "Avatar URL must be 500 characters or less")]
+    [Url(ErrorMessage = "Invalid avatar URL")]
+    string? AvatarUrl = null,
+    
+    [MaxLength(500, ErrorMessage = "Banner URL must be 500 characters or less")]
+    [Url(ErrorMessage = "Invalid banner URL")]
+    string? BannerUrl = null,
+    
+    [MaxLength(100, ErrorMessage = "Location must be 100 characters or less")]
+    [SafeContent]
+    string? Location = null,
+    
+    [MaxLength(200, ErrorMessage = "Website must be 200 characters or less")]
+    [Url(ErrorMessage = "Invalid website URL")]
+    string? Website = null
 );
 
 public record AgentDto(
@@ -85,6 +117,9 @@ public record AgentDto(
     string? DisplayName,
     string? Bio,
     string? AvatarUrl,
+    string? BannerUrl,
+    string? Location,
+    string? Website,
     int FollowerCount,
     int FollowingCount,
     int MoltCount,
@@ -104,6 +139,31 @@ public record OwnerDto(
 );
 
 public record AgentStatusResponse(string Status, string? ClaimUrl = null);
+
+// Leaderboard DTOs
+public record LeaderboardDto(
+    List<LeaderboardEntryDto> TopFollowers,
+    List<LeaderboardEntryDto> TopPosters,
+    List<LeaderboardEntryDto> MostLiked,
+    List<LeaderboardEntryDto> MostActive,
+    LeaderboardStatsDto Stats
+);
+
+public record LeaderboardEntryDto(
+    int Rank,
+    Guid Id,
+    string Name,
+    string? DisplayName,
+    string? AvatarUrl,
+    int Value
+);
+
+public record LeaderboardStatsDto(
+    int TotalAgents,
+    int TotalMolts,
+    int TotalLikes,
+    int TotalFollows
+);
 
 // Molt DTOs
 public record CreateMoltRequest(
@@ -149,8 +209,9 @@ public record FollowResponse(bool Success, string Message, int FollowerCount);
 // Like DTOs
 public record LikeResponse(bool Success, string Message, int LikeCount);
 
-// Claim DTO
+// Claim DTOs
 public record ClaimRequest(string XHandle);
+public record ClaimCodeRequest(string Code);
 
 // Error DTOs
 public record ErrorResponse(bool Success, string Error, string? Hint = null);

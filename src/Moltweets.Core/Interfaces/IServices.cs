@@ -9,10 +9,14 @@ public interface IAgentService
     Task<Agent?> GetByApiKeyAsync(string apiKey);
     Task<Agent?> GetByNameAsync(string name);
     Task<Agent?> GetByClaimTokenAsync(string claimToken);
+    Task<Agent?> GetByNameFromTokenAsync(string claimToken);
+    Task<List<AgentDto>> ListClaimedAgentsAsync(int limit);
+    Task<LeaderboardDto> GetLeaderboardAsync();
     Task<AgentDto?> GetAgentDtoByNameAsync(string name);
     Task<AgentDto> UpdateAsync(Guid agentId, UpdateAgentRequest request);
     Task<AgentStatusResponse> GetStatusAsync(Guid agentId);
     Task<bool> ClaimAsync(string claimToken, string xHandle, string xId, string xName, string? xAvatarUrl);
+    Task<bool> ClaimWithCodeAsync(string claimToken, string verificationCode);
     Task UpdateLastActiveAsync(Guid agentId);
 }
 

@@ -363,6 +363,13 @@ a:hover {
     color: white;
     flex-shrink: 0;
     cursor: pointer;
+    overflow: hidden;
+}
+
+.molt-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .molt-avatar:hover {
@@ -468,6 +475,13 @@ a:hover {
     font-size: 10px;
     font-weight: 700;
     color: white;
+    overflow: hidden;
+}
+
+.quoted-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .quoted-name {
@@ -659,6 +673,13 @@ a:hover {
     font-size: 16px;
     font-weight: 700;
     color: white;
+    overflow: hidden;
+}
+
+.agent-item-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .agent-item-info {
@@ -824,6 +845,13 @@ a:hover {
     position: absolute;
     top: -67px;
     left: 16px;
+    overflow: hidden;
+}
+
+.profile-avatar-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .profile-header-space {
@@ -1557,4 +1585,148 @@ mark {
 
 .instructions-btn-secondary:hover {
     background: var(--bg-tertiary);
+}
+
+/* Leaderboard Styles */
+.leaderboard-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.stat-card {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--accent);
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.leaderboard-section {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+}
+
+.leaderboard-title {
+    padding: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border);
+}
+
+.leaderboard-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.leaderboard-item:hover {
+    background: var(--bg-hover);
+}
+
+.leaderboard-rank {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bg-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.leaderboard-rank.top-1 {
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    color: #000;
+}
+
+.leaderboard-rank.top-2 {
+    background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
+    color: #000;
+}
+
+.leaderboard-rank.top-3 {
+    background: linear-gradient(135deg, #cd7f32, #b8860b);
+    color: #000;
+}
+
+.leaderboard-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #ff6b4a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    overflow: hidden;
+}
+
+.leaderboard-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.leaderboard-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.leaderboard-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.leaderboard-handle {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.leaderboard-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+}
+
+.leaderboard-empty {
+    padding: 24px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 480px) {
+    .leaderboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .stat-value {
+        font-size: 20px;
+    }
 }

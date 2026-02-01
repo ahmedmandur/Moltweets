@@ -37,9 +37,14 @@ public class AgentService(
             Name = request.Name,
             DisplayName = request.DisplayName ?? request.Name,
             Bio = request.Bio,
+            AvatarUrl = request.AvatarUrl,
+            BannerUrl = request.BannerUrl,
+            Location = request.Location,
+            Website = request.Website,
             ApiKey = apiKey,
             ApiKeyHash = apiKeyHash,
             ClaimToken = claimToken,
+            VerificationCode = verificationCode,  // Store the code
             ClaimTokenExpiresAt = DateTime.UtcNow.AddHours(24),
             IsClaimed = false
         };
@@ -51,7 +56,7 @@ public class AgentService(
             Agent: MapToDto(agent),
             ApiKey: apiKey,
             ClaimUrl: $"{baseUrl}/claim/{claimToken}",
-            VerificationCode: verificationCode,
+            VerificationCode: $"molt-{verificationCode}",
             Important: "⚠️ SAVE YOUR API KEY! You'll need it for all requests."
         );
     }
@@ -116,6 +121,58 @@ public class AgentService(
         return agent != null ? MapToDto(agent) : null;
     }
 
+    public async Task<List<AgentDto>> ListClaimedAgentsAsync(int limit)
+    {
+        var agents = await context.Agents
+            .Where(a => a.IsClaimed && a.IsActive)
+            .OrderByDescending(a => a.CreatedAt)
+            .Take(Math.Min(limit, 100))
+            .ToListAsync();
+        
+        return agents.Select(MapToDto).ToList();
+    }
+
+    public async Task<LeaderboardDto> GetLeaderboardAsync()
+    {
+        var claimedAgents = await context.Agents
+            .Where(a => a.IsClaimed && a.IsActive)
+            .ToListAsync();
+        
+        var topFollowers = claimedAgents
+            .OrderByDescending(a => a.FollowerCount)
+            .Take(10)
+            .Select((a, i) => new LeaderboardEntryDto(i + 1, a.Id, a.Name, a.DisplayName, a.AvatarUrl, a.FollowerCount))
+            .ToList();
+        
+        var topPosters = claimedAgents
+            .OrderByDescending(a => a.MoltCount)
+            .Take(10)
+            .Select((a, i) => new LeaderboardEntryDto(i + 1, a.Id, a.Name, a.DisplayName, a.AvatarUrl, a.MoltCount))
+            .ToList();
+        
+        var mostLiked = claimedAgents
+            .OrderByDescending(a => a.LikeCount)
+            .Take(10)
+            .Select((a, i) => new LeaderboardEntryDto(i + 1, a.Id, a.Name, a.DisplayName, a.AvatarUrl, a.LikeCount))
+            .ToList();
+        
+        var mostActive = claimedAgents
+            .Where(a => a.LastActiveAt != null)
+            .OrderByDescending(a => a.LastActiveAt)
+            .Take(10)
+            .Select((a, i) => new LeaderboardEntryDto(i + 1, a.Id, a.Name, a.DisplayName, a.AvatarUrl, (int)(DateTime.UtcNow - a.LastActiveAt!.Value).TotalMinutes))
+            .ToList();
+        
+        var stats = new LeaderboardStatsDto(
+            TotalAgents: claimedAgents.Count,
+            TotalMolts: claimedAgents.Sum(a => a.MoltCount),
+            TotalLikes: await context.Likes.CountAsync(),
+            TotalFollows: await context.Follows.CountAsync()
+        );
+        
+        return new LeaderboardDto(topFollowers, topPosters, mostLiked, mostActive, stats);
+    }
+
     public async Task<AgentDto> UpdateAsync(Guid agentId, UpdateAgentRequest request)
     {
         var agent = await context.Agents.FindAsync(agentId)
@@ -125,6 +182,14 @@ public class AgentService(
             agent.DisplayName = request.DisplayName;
         if (request.Bio != null)
             agent.Bio = request.Bio;
+        if (request.AvatarUrl != null)
+            agent.AvatarUrl = request.AvatarUrl;
+        if (request.BannerUrl != null)
+            agent.BannerUrl = request.BannerUrl;
+        if (request.Location != null)
+            agent.Location = request.Location;
+        if (request.Website != null)
+            agent.Website = request.Website;
 
         await context.SaveChangesAsync();
         return MapToDto(agent);
@@ -154,6 +219,7 @@ public class AgentService(
         agent.IsClaimed = true;
         agent.ClaimToken = null;
         agent.ClaimTokenExpiresAt = null;
+        agent.VerificationCode = null;
         agent.OwnerXHandle = xHandle;
         agent.OwnerXId = xId;
         agent.OwnerXName = xName;
@@ -161,6 +227,38 @@ public class AgentService(
 
         await context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<bool> ClaimWithCodeAsync(string claimToken, string verificationCode)
+    {
+        var agent = await context.Agents.FirstOrDefaultAsync(a => 
+            a.ClaimToken == claimToken && 
+            !a.IsClaimed &&
+            a.ClaimTokenExpiresAt > DateTime.UtcNow);
+
+        if (agent == null) return false;
+        
+        // Check if verification code matches (case-insensitive)
+        if (agent.VerificationCode?.ToUpper() != verificationCode.ToUpper())
+            return false;
+
+        agent.IsClaimed = true;
+        agent.ClaimToken = null;
+        agent.ClaimTokenExpiresAt = null;
+        agent.VerificationCode = null;
+
+        await context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<Agent?> GetByNameFromTokenAsync(string claimToken)
+    {
+        // The token was cleared after claim, so we need to find by recent claim
+        // This is called right after ClaimWithCodeAsync, so we look for recently claimed agents
+        return await context.Agents.FirstOrDefaultAsync(a => 
+            a.IsClaimed && 
+            a.ClaimToken == null &&
+            a.LastActiveAt == null);  // Newly claimed agents haven't been active yet
     }
 
     public async Task UpdateLastActiveAsync(Guid agentId)
@@ -181,6 +279,9 @@ public class AgentService(
             DisplayName: agent.DisplayName,
             Bio: agent.Bio,
             AvatarUrl: agent.AvatarUrl,
+            BannerUrl: agent.BannerUrl,
+            Location: agent.Location,
+            Website: agent.Website,
             FollowerCount: agent.FollowerCount,
             FollowingCount: agent.FollowingCount,
             MoltCount: agent.MoltCount,
