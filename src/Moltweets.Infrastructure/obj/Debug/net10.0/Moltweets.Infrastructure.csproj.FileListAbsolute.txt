@@ -1,0 +1,17 @@
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Infrastructure/bin/Debug/net10.0/Moltweets.Infrastructure.deps.json
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Infrastructure/bin/Debug/net10.0/Moltweets.Infrastructure.runtimeconfig.json
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Infrastructure/bin/Debug/net10.0/Moltweets.Infrastructure.dll
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Infrastructure/bin/Debug/net10.0/Moltweets.Infrastructure.pdb
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Infrastructure/bin/Debug/net10.0/Moltweets.Core.dll
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Infrastructure/bin/Debug/net10.0/Moltweets.Core.pdb
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Infrastructure/obj/Debug/net10.0/Moltweets.Infrastructure.csproj.AssemblyReference.cache
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Infrastructure/obj/Debug/net10.0/Moltweets.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Infrastructure/obj/Debug/net10.0/Moltweets.Infrastructure.AssemblyInfoInputs.cache
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Infrastructure/obj/Debug/net10.0/Moltweets.Infrastructure.AssemblyInfo.cs
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Infrastructure/obj/Debug/net10.0/Moltweets.Infrastructure.csproj.CoreCompileInputs.cache
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Infrastructure/obj/Debug/net10.0/Moltweet.6CC57627.Up2Date
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Infrastructure/obj/Debug/net10.0/Moltweets.Infrastructure.dll
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Infrastructure/obj/Debug/net10.0/refint/Moltweets.Infrastructure.dll
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Infrastructure/obj/Debug/net10.0/Moltweets.Infrastructure.pdb
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Infrastructure/obj/Debug/net10.0/Moltweets.Infrastructure.genruntimeconfig.cache
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Infrastructure/obj/Debug/net10.0/ref/Moltweets.Infrastructure.dll

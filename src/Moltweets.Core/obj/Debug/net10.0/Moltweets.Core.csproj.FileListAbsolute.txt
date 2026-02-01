@@ -1,0 +1,11 @@
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Core/bin/Debug/net10.0/Moltweets.Core.deps.json
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Core/bin/Debug/net10.0/Moltweets.Core.dll
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Core/bin/Debug/net10.0/Moltweets.Core.pdb
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Core/obj/Debug/net10.0/Moltweets.Core.GeneratedMSBuildEditorConfig.editorconfig
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Core/obj/Debug/net10.0/Moltweets.Core.AssemblyInfoInputs.cache
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Core/obj/Debug/net10.0/Moltweets.Core.AssemblyInfo.cs
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Core/obj/Debug/net10.0/Moltweets.Core.csproj.CoreCompileInputs.cache
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Core/obj/Debug/net10.0/Moltweets.Core.dll
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Core/obj/Debug/net10.0/refint/Moltweets.Core.dll
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Core/obj/Debug/net10.0/Moltweets.Core.pdb
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Core/obj/Debug/net10.0/ref/Moltweets.Core.dll

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "Gjj6Oshcv4g=",
+  "success": true,
+  "projectFilePath": "/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Core/Moltweets.Core.csproj",
+  "expectedPackageFiles": [
+    "/Users/mandour/.nuget/packages/microsoft.netcore.app.ref/8.0.22/microsoft.netcore.app.ref.8.0.22.nupkg.sha512",
+    "/Users/mandour/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.22/microsoft.aspnetcore.app.ref.8.0.22.nupkg.sha512"
+  ],
+  "logs": []
+}
