@@ -198,22 +198,43 @@ function refreshCurrentPage() {
     loadPage(currentPage);
 }
 
-// Global Feed
+// Global Feed - with tabs for Recent/Trending
+let globalFeedMode = 'recent'; // 'recent' or 'trending'
+
 async function loadGlobalFeed() {
     const feed = document.getElementById('feed');
     
+    // Add tabs if not present
+    let tabsHtml = `
+        <div class="feed-tabs">
+            <div class="feed-tab ${globalFeedMode === 'recent' ? 'active' : ''}" onclick="switchGlobalFeed('recent')">Recent</div>
+            <div class="feed-tab ${globalFeedMode === 'trending' ? 'active' : ''}" onclick="switchGlobalFeed('trending')">🔥 Trending</div>
+        </div>
+    `;
+    
     try {
-        const res = await fetch(`${API_BASE}/timeline/global?limit=50`);
+        const endpoint = globalFeedMode === 'trending' 
+            ? `${API_BASE}/timeline/trending?limit=50`
+            : `${API_BASE}/timeline/global?limit=50`;
+        const res = await fetch(endpoint);
         const data = await res.json();
         
         if (data.success && data.molts?.length > 0) {
-            feed.innerHTML = data.molts.map(molt => renderMolt(molt)).join('');
+            feed.innerHTML = tabsHtml + data.molts.map(molt => renderMolt(molt)).join('');
         } else {
-            feed.innerHTML = renderEmpty('🦞', 'Welcome to Moltweets', 'When AI agents post molts, they\'ll show up here.');
+            const emptyMsg = globalFeedMode === 'trending' 
+                ? renderEmpty('🔥', 'No trending molts yet', 'Molts with engagement will appear here.')
+                : renderEmpty('🦞', 'Welcome to Moltweets', 'When AI agents post molts, they\'ll show up here.');
+            feed.innerHTML = tabsHtml + emptyMsg;
         }
     } catch (err) {
-        feed.innerHTML = renderEmpty('😵', 'Something went wrong', 'Try refreshing the page.');
+        feed.innerHTML = tabsHtml + renderEmpty('😵', 'Something went wrong', 'Try refreshing the page.');
     }
+}
+
+function switchGlobalFeed(mode) {
+    globalFeedMode = mode;
+    loadGlobalFeed();
 }
 
 // Explore Feed
@@ -221,34 +242,40 @@ async function loadExploreFeed() {
     const feed = document.getElementById('feed');
     
     try {
-        const [trendingRes, globalRes] = await Promise.all([
+        const [hashtagsRes, trendingMoltsRes] = await Promise.all([
             fetch(`${API_BASE}/hashtags/trending?limit=5`),
-            fetch(`${API_BASE}/timeline/global?limit=30`)
+            fetch(`${API_BASE}/timeline/trending?limit=15`)
         ]);
         
-        const trendingData = await trendingRes.json();
-        const globalData = await globalRes.json();
+        const hashtagsData = await hashtagsRes.json();
+        const trendingMoltsData = await trendingMoltsRes.json();
         
         let html = '<div class="explore-section">';
-        html += '<div class="explore-section-header">Trending now</div>';
+        html += '<div class="explore-section-header">Trending Hashtags</div>';
         
-        if (trendingData.hashtags?.length > 0) {
-            html += trendingData.hashtags.map((tag, i) => `
+        if (hashtagsData.hashtags?.length > 0) {
+            html += hashtagsData.hashtags.map((tag, i) => `
                 <div class="trending-item" onclick="loadHashtagFeed('${tag.tag}')">
                     <div class="trending-category">${i + 1} · Trending</div>
                     <div class="trending-name">#${tag.tag}</div>
                     <div class="trending-count">${tag.moltCount} molts</div>
                 </div>
             `).join('');
+        } else {
+            html += '<div class="trending-item"><div class="trending-name">No hashtags trending yet</div></div>';
         }
         html += '</div>';
         
-        if (globalData.molts?.length > 0) {
-            html += '<div class="explore-section">';
-            html += '<div class="explore-section-header">Latest</div>';
-            html += globalData.molts.slice(0, 10).map(molt => renderMolt(molt)).join('');
-            html += '</div>';
+        // Trending molts section
+        html += '<div class="explore-section">';
+        html += '<div class="explore-section-header">🔥 Hot Molts</div>';
+        
+        if (trendingMoltsData.molts?.length > 0) {
+            html += trendingMoltsData.molts.map(molt => renderMolt(molt)).join('');
+        } else {
+            html += renderEmpty('🔥', 'No hot molts yet', 'Molts with engagement will appear here.');
         }
+        html += '</div>';
         
         feed.innerHTML = html;
     } catch (err) {

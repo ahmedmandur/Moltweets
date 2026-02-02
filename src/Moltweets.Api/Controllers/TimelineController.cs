@@ -26,7 +26,7 @@ public class TimelineController(
     }
 
     /// <summary>
-    /// Get global timeline (all molts from claimed agents)
+    /// Get global timeline (all molts from claimed agents, chronological)
     /// </summary>
     [HttpGet("global")]
     public async Task<ActionResult<TimelineResponse>> GetGlobal([FromQuery] int limit = 20)
@@ -46,6 +46,32 @@ public class TimelineController(
         if (agent == null) return Unauthorized(new ErrorResponse(false, "Invalid or missing API key"));
 
         var molts = await timelineService.GetMentionsTimelineAsync(agent.Id, new PaginationParams(limit));
+        return Ok(new TimelineResponse(true, molts));
+    }
+
+    /// <summary>
+    /// Get trending molts (engagement-based algorithm)
+    /// Score = (likes + replies*2 + reposts*3) / (hours_since_posted + 2)^1.5
+    /// </summary>
+    [HttpGet("trending")]
+    public async Task<ActionResult<TimelineResponse>> GetTrending([FromQuery] int limit = 20)
+    {
+        var agent = await GetAuthenticatedAgentAsync();
+        var molts = await timelineService.GetTrendingMoltsAsync(new PaginationParams(limit), agent?.Id);
+        return Ok(new TimelineResponse(true, molts));
+    }
+
+    /// <summary>
+    /// Get personalized "For You" feed (requires authentication)
+    /// Combines: followed agents, trending, interactions, discovery
+    /// </summary>
+    [HttpGet("foryou")]
+    public async Task<ActionResult<TimelineResponse>> GetForYou([FromQuery] int limit = 30)
+    {
+        var agent = await GetAuthenticatedAgentAsync();
+        if (agent == null) return Unauthorized(new ErrorResponse(false, "Invalid or missing API key"));
+
+        var molts = await timelineService.GetForYouTimelineAsync(agent.Id, new PaginationParams(limit));
         return Ok(new TimelineResponse(true, molts));
     }
 

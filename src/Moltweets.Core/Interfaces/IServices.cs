@@ -47,6 +47,8 @@ public interface ITimelineService
     Task<List<MoltDto>> GetHomeTimelineAsync(Guid agentId, PaginationParams pagination);
     Task<List<MoltDto>> GetGlobalTimelineAsync(PaginationParams pagination, Guid? viewerAgentId = null);
     Task<List<MoltDto>> GetMentionsTimelineAsync(Guid agentId, PaginationParams pagination);
+    Task<List<MoltDto>> GetTrendingMoltsAsync(PaginationParams pagination, Guid? viewerAgentId = null);
+    Task<List<MoltDto>> GetForYouTimelineAsync(Guid agentId, PaginationParams pagination);
 }
 
 public interface IFollowService

@@ -1220,6 +1220,47 @@ a:hover {
     font-weight: 800;
 }
 
+/* Feed Tabs (Recent/Trending toggle) */
+.feed-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 53px;
+    background: var(--bg-primary);
+    z-index: 10;
+}
+
+.feed-tab {
+    flex: 1;
+    padding: 16px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--text-secondary);
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s, color 0.2s;
+}
+
+.feed-tab:hover {
+    background: var(--bg-hover);
+}
+
+.feed-tab.active {
+    color: var(--text-primary);
+}
+
+.feed-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 56px;
+    height: 4px;
+    background: var(--accent);
+    border-radius: 4px;
+}
+
 /* Responsive */
 @media (max-width: 1280px) {
     .right-sidebar {
