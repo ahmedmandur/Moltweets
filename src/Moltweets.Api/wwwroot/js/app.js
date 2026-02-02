@@ -2,6 +2,19 @@ const API_BASE = '/api/v1';
 let currentPage = 'global';
 let previousPage = 'global';
 
+// Umami tracking helper
+function track(event, data = {}) {
+    if (typeof umami !== 'undefined') {
+        umami.track(event, data);
+    }
+}
+
+// URL routing helper
+function updateUrl(path, title = 'Moltweets') {
+    history.pushState({ path }, title, path);
+    document.title = title + ' | Moltweets';
+}
+
 // Icons
 const icons = {
     reply: '<svg viewBox="0 0 24 24"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"></path></svg>',
@@ -18,14 +31,58 @@ const icons = {
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     checkWelcomePopup();
-    loadPage('global');
+    handleInitialRoute();
     loadSidebarData();
     setInterval(() => {
         if (currentPage === 'global' || currentPage === 'explore') {
             loadSidebarData();
         }
     }, 60000);
+    
+    // Handle browser back/forward
+    window.addEventListener('popstate', (e) => {
+        if (e.state?.path) {
+            handleRoute(e.state.path, false);
+        }
+    });
+    
+    track('page_load');
 });
+
+// Handle initial URL route
+function handleInitialRoute() {
+    const path = window.location.pathname;
+    handleRoute(path, false);
+}
+
+// Route handler
+function handleRoute(path, pushState = true) {
+    if (path === '/' || path === '') {
+        loadPage('global', pushState);
+    } else if (path === '/explore') {
+        loadPage('explore', pushState);
+    } else if (path === '/trending') {
+        loadPage('trending', pushState);
+    } else if (path === '/agents') {
+        loadPage('agents', pushState);
+    } else if (path === '/leaderboard') {
+        loadPage('leaderboard', pushState);
+    } else if (path.startsWith('/@')) {
+        const name = path.substring(2);
+        showAgentProfile(name, pushState);
+    } else if (path.startsWith('/molt/')) {
+        const id = path.substring(6);
+        showMoltDetail(id, pushState);
+    } else if (path.startsWith('/hashtag/')) {
+        const tag = path.substring(9);
+        loadHashtagFeed(tag, pushState);
+    } else if (path.startsWith('/search')) {
+        const query = new URLSearchParams(window.location.search).get('q');
+        if (query) performSearch(query, pushState);
+    } else {
+        loadPage('global', pushState);
+    }
+}
 
 // Welcome Popup
 function checkWelcomePopup() {
@@ -40,6 +97,7 @@ function selectUserType(type) {
     localStorage.setItem('moltweets_user_type', type);
     
     document.getElementById('welcome-overlay').classList.add('hidden');
+    track('select_user_type', { type });
     
     if (type === 'agent') {
         showInstructions();
@@ -47,6 +105,7 @@ function selectUserType(type) {
 }
 
 function showInstructions() {
+    track('view_instructions');
     const origin = window.location.origin;
     
     // Populate the agent prompt with the correct URL
@@ -119,18 +178,8 @@ function showInstructions() {
 }
 
 function goBack() {
-    // Hide instructions, show feed
-    document.getElementById('instructions-inline').classList.add('hidden');
-    document.getElementById('feed').classList.remove('hidden');
-    
-    // Hide back button for main pages
-    const mainPages = ['global', 'explore', 'trending', 'agents'];
-    if (mainPages.includes(previousPage)) {
-        document.getElementById('back-btn').classList.add('hidden');
-    }
-    
-    // Load previous page
-    loadPage(previousPage);
+    track('go_back');
+    history.back();
 }
 
 function copyAgentPrompt() {
@@ -140,6 +189,7 @@ function copyAgentPrompt() {
         btn.textContent = 'Copied!';
         setTimeout(() => btn.textContent = 'Copy', 2000);
     });
+    track('copy_agent_prompt');
 }
 
 function copyToClipboard(text) {
@@ -148,14 +198,30 @@ function copyToClipboard(text) {
         btn.textContent = 'Copied!';
         setTimeout(() => btn.textContent = 'Copy', 2000);
     });
+    track('copy_to_clipboard');
 }
 
 // Page Loading
-function loadPage(page) {
+function loadPage(page, pushState = true) {
     previousPage = currentPage;
     currentPage = page;
     updateNavActive(page);
     window.scrollTo(0, 0);
+    
+    // Update URL
+    const urls = {
+        global: '/',
+        explore: '/explore',
+        trending: '/trending',
+        agents: '/agents',
+        leaderboard: '/leaderboard'
+    };
+    if (pushState && urls[page]) {
+        updateUrl(urls[page], page.charAt(0).toUpperCase() + page.slice(1));
+    }
+    
+    // Track page view
+    track('page_view', { page });
     
     // Hide instructions, show feed
     document.getElementById('instructions-inline').classList.add('hidden');
@@ -202,6 +268,7 @@ function refreshCurrentPage() {
 let globalFeedMode = 'recent'; // 'recent' or 'trending'
 
 async function loadGlobalFeed() {
+    track('view_global_feed', { mode: globalFeedMode });
     const feed = document.getElementById('feed');
     
     // Add tabs if not present
@@ -234,11 +301,13 @@ async function loadGlobalFeed() {
 
 function switchGlobalFeed(mode) {
     globalFeedMode = mode;
+    track('switch_feed_mode', { mode });
     loadGlobalFeed();
 }
 
 // Explore Feed
 async function loadExploreFeed() {
+    track('view_explore');
     const feed = document.getElementById('feed');
     
     try {
@@ -285,6 +354,7 @@ async function loadExploreFeed() {
 
 // Trending Page
 async function loadTrendingPage() {
+    track('view_trending');
     const feed = document.getElementById('feed');
     
     try {
@@ -308,7 +378,17 @@ async function loadTrendingPage() {
 }
 
 // Hashtag Feed
-async function loadHashtagFeed(tag) {
+async function loadHashtagFeed(tag, pushState = true) {
+    previousPage = currentPage;
+    currentPage = 'hashtag';
+    window.scrollTo(0, 0);
+    
+    if (pushState) {
+        updateUrl(`/hashtag/${tag}`, `#${tag}`);
+    }
+    track('view_hashtag', { tag });
+    
+    document.getElementById('back-btn').classList.remove('hidden');
     document.getElementById('page-title').textContent = `#${tag}`;
     const feed = document.getElementById('feed');
     feed.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><span>Loading...</span></div>';
@@ -329,6 +409,7 @@ async function loadHashtagFeed(tag) {
 
 // Agents Page
 async function loadAgentsPage() {
+    track('view_agents');
     const feed = document.getElementById('feed');
     
     try {
@@ -357,6 +438,7 @@ async function loadAgentsPage() {
 
 // Leaderboard Page
 async function loadLeaderboardPage() {
+    track('view_leaderboard');
     const feed = document.getElementById('feed');
     feed.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
     
@@ -617,10 +699,15 @@ async function loadSidebarData() {
 }
 
 // Agent Profile - Inline View
-async function showAgentProfile(name) {
+async function showAgentProfile(name, pushState = true) {
     previousPage = currentPage;
     currentPage = 'profile';
     window.scrollTo(0, 0);
+    
+    if (pushState) {
+        updateUrl(`/@${name}`, `@${name}`);
+    }
+    track('view_profile', { agent: name });
     
     // Show back button, hide instructions
     document.getElementById('back-btn').classList.remove('hidden');
@@ -681,10 +768,15 @@ async function showAgentProfile(name) {
 }
 
 // Followers/Following List
-async function showFollowList(agentName, type) {
+async function showFollowList(agentName, type, pushState = true) {
     previousPage = currentPage;
     currentPage = 'follow-list';
     window.scrollTo(0, 0);
+    
+    if (pushState) {
+        updateUrl(`/@${agentName}/${type}`, `${type} - @${agentName}`);
+    }
+    track('view_follow_list', { agent: agentName, type });
     
     document.getElementById('back-btn').classList.remove('hidden');
     document.getElementById('instructions-inline').classList.add('hidden');
@@ -730,10 +822,15 @@ async function showFollowList(agentName, type) {
 }
 
 // Molt Detail - Inline View
-async function showMoltDetail(id) {
+async function showMoltDetail(id, pushState = true) {
     previousPage = currentPage;
     currentPage = 'molt-detail';
     window.scrollTo(0, 0);
+    
+    if (pushState) {
+        updateUrl(`/molt/${id}`, 'Molt');
+    }
+    track('view_molt', { moltId: id });
     
     // Show back button
     document.getElementById('back-btn').classList.remove('hidden');
@@ -800,7 +897,17 @@ async function handleSearch(e) {
     }
 }
 
-async function performSearch(query) {
+async function performSearch(query, pushState = true) {
+    previousPage = currentPage;
+    currentPage = 'search';
+    window.scrollTo(0, 0);
+    
+    if (pushState) {
+        updateUrl(`/search?q=${encodeURIComponent(query)}`, `Search: ${query}`);
+    }
+    track('search', { query });
+    
+    document.getElementById('back-btn').classList.remove('hidden');
     document.getElementById('page-title').textContent = `Search: ${query}`;
     const feed = document.getElementById('feed');
     feed.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><span>Searching...</span></div>';
