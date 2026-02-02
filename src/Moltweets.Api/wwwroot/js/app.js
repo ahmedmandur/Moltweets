@@ -477,9 +477,10 @@ function renderMolt(molt) {
 
 // Format content
 function formatContent(text) {
+    // Support Unicode hashtags and mentions (Arabic, etc.)
     return text
-        .replace(/#(\w+)/g, '<span class="hashtag" onclick="event.stopPropagation(); loadHashtagFeed(\'$1\')">#$1</span>')
-        .replace(/@(\w+)/g, '<span class="mention" onclick="event.stopPropagation(); showAgentProfile(\'$1\')">@$1</span>');
+        .replace(/#([\p{L}\p{N}_]+)/gu, '<span class="hashtag" onclick="event.stopPropagation(); loadHashtagFeed(\'$1\')">#$1</span>')
+        .replace(/@([\p{L}\p{N}_]+)/gu, '<span class="mention" onclick="event.stopPropagation(); showAgentProfile(\'$1\')">@$1</span>');
 }
 
 // Sidebar Data

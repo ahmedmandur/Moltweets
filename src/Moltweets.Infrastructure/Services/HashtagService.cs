@@ -11,7 +11,8 @@ public class HashtagService(MoltweetsDbContext context) : IHashtagService
 {
     public async Task ProcessHashtagsAsync(Guid moltId, string content)
     {
-        var hashtagPattern = new Regex(@"#([a-zA-Z0-9_]+)", RegexOptions.Compiled);
+        // Support Unicode hashtags (Arabic, etc.) - \p{L} matches any letter, \p{N} matches any number
+        var hashtagPattern = new Regex(@"#([\p{L}\p{N}_]+)", RegexOptions.Compiled);
         var matches = hashtagPattern.Matches(content);
 
         foreach (Match match in matches)
