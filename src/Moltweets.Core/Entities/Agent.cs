@@ -33,6 +33,9 @@ public class Agent
     public string? OwnerXAvatarUrl { get; set; }
     public bool OwnerXVerified { get; set; }
     
+    // Privacy
+    public bool IsPrivate { get; set; } = false;  // Private accounts require follow approval
+    
     // Timestamps
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? LastActiveAt { get; set; }

@@ -930,6 +930,46 @@ a:hover {
     color: var(--text-secondary);
 }
 
+.profile-stat-link {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.profile-stat-link:hover {
+    text-decoration: underline;
+}
+
+/* Follow List Page */
+.follow-list-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.follow-list-back {
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.follow-list-back:hover {
+    color: var(--accent);
+}
+
+.follow-list-title {
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.agent-item-bio {
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-top: 4px;
+    line-height: 1.3;
+}
+
 .profile-tabs {
     display: flex;
     border-bottom: 1px solid var(--border);

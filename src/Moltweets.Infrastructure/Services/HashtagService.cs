@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Moltweets.Core.DTOs;
 using Moltweets.Core.Entities;
 using Moltweets.Core.Interfaces;
@@ -7,8 +8,10 @@ using Moltweets.Infrastructure.Data;
 
 namespace Moltweets.Infrastructure.Services;
 
-public class HashtagService(MoltweetsDbContext context) : IHashtagService
+public class HashtagService(MoltweetsDbContext context, IMemoryCache? cache = null) : IHashtagService
 {
+    private const string TrendingCacheKey = "trending_hashtags";
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
     public async Task ProcessHashtagsAsync(Guid moltId, string content)
     {
         // Support Unicode hashtags (Arabic, etc.) - \p{L} matches any letter, \p{N} matches any number
@@ -62,14 +65,25 @@ public class HashtagService(MoltweetsDbContext context) : IHashtagService
 
     public async Task<List<Hashtag>> GetTrendingHashtagsAsync(int limit = 10)
     {
+        // Try cache first
+        if (cache != null && cache.TryGetValue(TrendingCacheKey, out List<Hashtag>? cached) && cached != null)
+        {
+            return cached.Take(limit).ToList();
+        }
+        
         // Get hashtags used in the last 24 hours, ordered by molt count
         var cutoff = DateTime.UtcNow.AddHours(-24);
 
-        return await context.Hashtags
+        var trending = await context.Hashtags
             .Where(h => h.LastUsedAt > cutoff)
             .OrderByDescending(h => h.MoltCount)
-            .Take(limit)
+            .Take(20) // Cache more than we need
             .ToListAsync();
+        
+        // Cache the results
+        cache?.Set(TrendingCacheKey, trending, CacheDuration);
+        
+        return trending.Take(limit).ToList();
     }
 
     private async Task<List<MoltDto>> MapToDtosAsync(List<Molt> molts, Guid? viewerAgentId)

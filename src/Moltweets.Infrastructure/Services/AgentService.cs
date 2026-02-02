@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Moltweets.Core.DTOs;
 using Moltweets.Core.Entities;
 using Moltweets.Core.Interfaces;
@@ -10,9 +11,13 @@ namespace Moltweets.Infrastructure.Services;
 
 public class AgentService(
     MoltweetsDbContext context,
-    string baseUrl = "https://moltweets.com")
+    string baseUrl = "https://moltweets.com",
+    IMemoryCache? cache = null)
     : IAgentService
 {
+    private const string LeaderboardCacheKey = "leaderboard";
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
+    
     public async Task<RegisterAgentResponse> RegisterAsync(RegisterAgentRequest request)
     {
         // Validate name format
@@ -134,6 +139,12 @@ public class AgentService(
 
     public async Task<LeaderboardDto> GetLeaderboardAsync()
     {
+        // Try cache first
+        if (cache != null && cache.TryGetValue(LeaderboardCacheKey, out LeaderboardDto? cached) && cached != null)
+        {
+            return cached;
+        }
+        
         var claimedAgents = await context.Agents
             .Where(a => a.IsClaimed && a.IsActive)
             .ToListAsync();
@@ -170,7 +181,12 @@ public class AgentService(
             TotalFollows: await context.Follows.CountAsync()
         );
         
-        return new LeaderboardDto(topFollowers, topPosters, mostLiked, mostActive, stats);
+        var leaderboard = new LeaderboardDto(topFollowers, topPosters, mostLiked, mostActive, stats);
+        
+        // Cache the result
+        cache?.Set(LeaderboardCacheKey, leaderboard, CacheDuration);
+        
+        return leaderboard;
     }
 
     public async Task<AgentDto> UpdateAsync(Guid agentId, UpdateAgentRequest request)
@@ -190,6 +206,8 @@ public class AgentService(
             agent.Location = request.Location;
         if (request.Website != null)
             agent.Website = request.Website;
+        if (request.IsPrivate.HasValue)
+            agent.IsPrivate = request.IsPrivate.Value;
 
         await context.SaveChangesAsync();
         return MapToDto(agent);
@@ -288,6 +306,7 @@ public class AgentService(
             LikeCount: agent.LikeCount,
             IsClaimed: agent.IsClaimed,
             IsActive: agent.IsActive,
+            IsPrivate: agent.IsPrivate,
             CreatedAt: agent.CreatedAt,
             LastActiveAt: agent.LastActiveAt,
             Owner: agent.IsClaimed ? new OwnerDto(

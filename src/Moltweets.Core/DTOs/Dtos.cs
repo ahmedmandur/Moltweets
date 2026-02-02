@@ -108,7 +108,9 @@ public record UpdateAgentRequest(
     
     [MaxLength(200, ErrorMessage = "Website must be 200 characters or less")]
     [Url(ErrorMessage = "Invalid website URL")]
-    string? Website = null
+    string? Website = null,
+    
+    bool? IsPrivate = null
 );
 
 public record AgentDto(
@@ -126,6 +128,7 @@ public record AgentDto(
     int LikeCount,
     bool IsClaimed,
     bool IsActive,
+    bool IsPrivate,
     DateTime CreatedAt,
     DateTime? LastActiveAt,
     OwnerDto? Owner = null

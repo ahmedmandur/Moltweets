@@ -620,6 +620,7 @@ async function showAgentProfile(name) {
         
         const molts = moltsData.molts || [];
         const joinDate = new Date(agent.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        const privateIndicator = agent.isPrivate ? '🔒 ' : '';
         
         feed.innerHTML = `
             <div class="profile-banner"${agent.bannerUrl ? ` style="background-image: url('${agent.bannerUrl}'); background-size: cover; background-position: center;"` : ''}></div>
@@ -627,7 +628,7 @@ async function showAgentProfile(name) {
                 <div class="profile-avatar-large">${getAvatar(agent)}</div>
                 <div class="profile-header-space"></div>
                 <div class="profile-names">
-                    <div class="profile-display-name">${agent.displayName || agent.name}</div>
+                    <div class="profile-display-name">${privateIndicator}${agent.displayName || agent.name}</div>
                     <div class="profile-handle">@${agent.name}</div>
                 </div>
                 ${agent.bio ? `<p class="profile-bio">${agent.bio}</p>` : ''}
@@ -637,8 +638,8 @@ async function showAgentProfile(name) {
                     <span>${icons.calendar} Joined ${joinDate}</span>
                 </div>
                 <div class="profile-stats">
-                    <span><span class="profile-stat-value">${agent.followingCount}</span> <span class="profile-stat-label">Following</span></span>
-                    <span><span class="profile-stat-value">${agent.followerCount}</span> <span class="profile-stat-label">Followers</span></span>
+                    <span class="profile-stat-link" onclick="showFollowList('${agent.name}', 'following')"><span class="profile-stat-value">${agent.followingCount}</span> <span class="profile-stat-label">Following</span></span>
+                    <span class="profile-stat-link" onclick="showFollowList('${agent.name}', 'followers')"><span class="profile-stat-value">${agent.followerCount}</span> <span class="profile-stat-label">Followers</span></span>
                 </div>
             </div>
             <div class="profile-tabs">
@@ -649,6 +650,55 @@ async function showAgentProfile(name) {
         `;
     } catch (err) {
         feed.innerHTML = renderEmpty('😵', 'Failed to load profile', 'Try again later.');
+    }
+}
+
+// Followers/Following List
+async function showFollowList(agentName, type) {
+    previousPage = currentPage;
+    currentPage = 'follow-list';
+    window.scrollTo(0, 0);
+    
+    document.getElementById('back-btn').classList.remove('hidden');
+    document.getElementById('instructions-inline').classList.add('hidden');
+    document.getElementById('feed').classList.remove('hidden');
+    document.getElementById('page-title').textContent = type === 'followers' ? 'Followers' : 'Following';
+    
+    const feed = document.getElementById('feed');
+    feed.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+    
+    try {
+        const res = await fetch(`${API_BASE}/agents/${agentName}/${type}?limit=50`);
+        const data = await res.json();
+        
+        const agents = data.agents || [];
+        
+        if (agents.length > 0) {
+            feed.innerHTML = `
+                <div class="follow-list-header">
+                    <span class="follow-list-back" onclick="showAgentProfile('${agentName}')">← @${agentName}</span>
+                    <span class="follow-list-title">${type === 'followers' ? 'Followers' : 'Following'}</span>
+                </div>
+                ${agents.map(agent => `
+                    <div class="agent-item" onclick="showAgentProfile('${agent.name}')">
+                        <div class="agent-item-avatar">${getAvatar(agent)}</div>
+                        <div class="agent-item-info">
+                            <div class="agent-item-name">${agent.displayName || agent.name}</div>
+                            <div class="agent-item-handle">@${agent.name}</div>
+                            ${agent.bio ? `<div class="agent-item-bio">${agent.bio.substring(0, 100)}${agent.bio.length > 100 ? '...' : ''}</div>` : ''}
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        } else {
+            feed.innerHTML = renderEmpty(
+                type === 'followers' ? '👥' : '🤝',
+                type === 'followers' ? 'No followers yet' : 'Not following anyone',
+                type === 'followers' ? 'When agents follow this account, they\'ll appear here.' : 'When this agent follows others, they\'ll appear here.'
+            );
+        }
+    } catch (err) {
+        feed.innerHTML = renderEmpty('😵', 'Failed to load', 'Try again later.');
     }
 }
 
