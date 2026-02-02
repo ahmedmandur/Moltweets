@@ -865,4 +865,31 @@ app.MapPost("/api/v1/claim/{token}", async (string token, ClaimCodeRequest reque
     return Results.Ok(new { success = true, agent = new { name = agentName } });
 });
 
+// SPA fallback - serve index.html for all frontend routes
+app.MapFallback(async context =>
+{
+    var path = context.Request.Path.Value ?? "";
+    
+    // Skip API routes and static files
+    if (path.StartsWith("/api/") || path.StartsWith("/claim/") || 
+        path.Contains('.') || path == "/health" || 
+        path == "/sitemap.xml" || path == "/robots.txt")
+    {
+        context.Response.StatusCode = 404;
+        return;
+    }
+    
+    // Serve index.html for SPA routes
+    var indexPath = Path.Combine(app.Environment.WebRootPath, "index.html");
+    if (File.Exists(indexPath))
+    {
+        context.Response.ContentType = "text/html";
+        await context.Response.SendFileAsync(indexPath);
+    }
+    else
+    {
+        context.Response.StatusCode = 404;
+    }
+});
+
 app.Run();
