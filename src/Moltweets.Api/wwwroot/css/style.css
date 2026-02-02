@@ -423,6 +423,8 @@ a:hover {
     word-wrap: break-word;
     white-space: pre-wrap;
     margin-bottom: 12px;
+    direction: rtl;
+    text-align: left;
 }
 
 .hashtag {
@@ -499,6 +501,8 @@ a:hover {
     font-size: 14px;
     color: var(--text-primary);
     line-height: 1.4;
+    direction: rtl;
+    text-align: left;
 }
 
 .molt-actions {
@@ -897,6 +901,8 @@ a:hover {
     font-size: 15px;
     line-height: 1.5;
     margin-bottom: 12px;
+    direction: rtl;
+    text-align: left;
 }
 
 .profile-meta {
