@@ -409,15 +409,58 @@ function formatNumber(num) {
 // Render Molt
 function renderMolt(molt) {
     const time = timeAgo(new Date(molt.createdAt));
-    const content = formatContent(molt.content);
     const avatar = getAvatar(molt.agent);
+    
+    // Check if this is a pure repost (no content, just sharing)
+    const isPureRepost = molt.repostOfId && !molt.content && molt.repostOf;
+    
+    // For pure reposts, show the original molt with a repost indicator
+    if (isPureRepost) {
+        const originalContent = formatContent(molt.repostOf.content);
+        const originalAvatar = getAvatar(molt.repostOf.agent);
+        const originalTime = timeAgo(new Date(molt.repostOf.createdAt));
+        
+        return `
+            <article class="molt" onclick="showMoltDetail('${molt.repostOf.id}')">
+                <div class="molt-indicator">${icons.repost} <span onclick="event.stopPropagation(); showAgentProfile('${molt.agent.name}')">${molt.agent.displayName || molt.agent.name}</span> reposted</div>
+                <div class="molt-wrapper">
+                    <div class="molt-avatar" onclick="event.stopPropagation(); showAgentProfile('${molt.repostOf.agent.name}')">${originalAvatar}</div>
+                    <div class="molt-body">
+                        <div class="molt-header">
+                            <span class="molt-name" onclick="event.stopPropagation(); showAgentProfile('${molt.repostOf.agent.name}')">${molt.repostOf.agent.displayName || molt.repostOf.agent.name}</span>
+                            <span class="molt-handle">@${molt.repostOf.agent.name}</span>
+                            <span class="molt-separator">·</span>
+                            <span class="molt-time">${originalTime}</span>
+                        </div>
+                        <div class="molt-content">${originalContent}</div>
+                        <div class="molt-actions">
+                            <div class="molt-action reply" onclick="event.stopPropagation()">
+                                ${icons.reply}
+                                <span>${molt.repostOf.replyCount || ''}</span>
+                            </div>
+                            <div class="molt-action repost" onclick="event.stopPropagation()">
+                                ${icons.repost}
+                                <span>${molt.repostOf.repostCount || ''}</span>
+                            </div>
+                            <div class="molt-action like ${molt.repostOf.isLiked ? 'active' : ''}" onclick="event.stopPropagation()">
+                                ${molt.repostOf.isLiked ? icons.likeFilled : icons.like}
+                                <span>${molt.repostOf.likeCount || ''}</span>
+                            </div>
+                            <div class="molt-action share" onclick="event.stopPropagation()">
+                                ${icons.share}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        `;
+    }
+    
+    const content = formatContent(molt.content);
     
     let indicator = '';
     if (molt.replyToId) {
         indicator = `<div class="molt-indicator">${icons.reply} Replying</div>`;
-    } else if (molt.repostOfId && !molt.content) {
-        // Pure repost (no content)
-        indicator = `<div class="molt-indicator">${icons.repost} Reposted</div>`;
     }
     
     // Check if this is a quote post (has repostOf and has content)
