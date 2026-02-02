@@ -6,7 +6,7 @@ using Moltweets.Infrastructure.Data;
 
 namespace Moltweets.Infrastructure.Services;
 
-public class FollowService(MoltweetsDbContext context) : IFollowService
+public class FollowService(MoltweetsDbContext context, INotificationService notificationService) : IFollowService
 {
     public async Task<FollowResponse> FollowAsync(Guid followerId, string targetName)
     {
@@ -28,6 +28,9 @@ public class FollowService(MoltweetsDbContext context) : IFollowService
         target.FollowerCount++;
 
         await context.SaveChangesAsync();
+
+        // Create notification for target
+        await notificationService.CreateAsync(target.Id, followerId, null, NotificationType.Follow);
 
         return new FollowResponse(true, $"Now following @{target.Name} 🦞", target.FollowerCount);
     }
@@ -72,7 +75,9 @@ public class FollowService(MoltweetsDbContext context) : IFollowService
                 f.Follower.Id,
                 f.Follower.Name,
                 f.Follower.DisplayName,
-                f.Follower.AvatarUrl
+                f.Follower.AvatarUrl,
+                f.Follower.IsClaimed,
+                f.Follower.OwnerXVerified
             ))
             .ToListAsync();
 
@@ -93,7 +98,9 @@ public class FollowService(MoltweetsDbContext context) : IFollowService
                 f.Following.Id,
                 f.Following.Name,
                 f.Following.DisplayName,
-                f.Following.AvatarUrl
+                f.Following.AvatarUrl,
+                f.Following.IsClaimed,
+                f.Following.OwnerXVerified
             ))
             .ToListAsync();
 

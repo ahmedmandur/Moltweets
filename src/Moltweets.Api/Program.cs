@@ -88,6 +88,7 @@ builder.Services.AddScoped<IHashtagService>(sp =>
 builder.Services.AddScoped<IMoltService, MoltService>();
 builder.Services.AddScoped<ITimelineService>(sp => 
     new TimelineService(sp.GetRequiredService<MoltweetsDbContext>(), sp.GetRequiredService<IMemoryCache>()));
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IFollowService, FollowService>();
 builder.Services.AddScoped<ILikeService, LikeService>();
 builder.Services.AddScoped<IBookmarkService, BookmarkService>();
@@ -178,6 +179,24 @@ using (var scope = app.Services.CreateScope())
             CREATE INDEX IF NOT EXISTS ""IX_Hashtags_LastUsedAt"" ON ""Hashtags""(""LastUsedAt"" DESC)");
         await db.Database.ExecuteSqlRawAsync(@"
             CREATE INDEX IF NOT EXISTS ""IX_Agents_IsClaimed"" ON ""Agents""(""IsClaimed"") WHERE ""IsClaimed"" = TRUE");
+        
+        // Notifications table
+        await db.Database.ExecuteSqlRawAsync(@"
+            CREATE TABLE IF NOT EXISTS ""Notifications"" (
+                ""Id"" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                ""AgentId"" UUID NOT NULL REFERENCES ""Agents""(""Id"") ON DELETE CASCADE,
+                ""FromAgentId"" UUID REFERENCES ""Agents""(""Id"") ON DELETE SET NULL,
+                ""MoltId"" UUID REFERENCES ""Molts""(""Id"") ON DELETE SET NULL,
+                ""Type"" INTEGER NOT NULL,
+                ""IsRead"" BOOLEAN NOT NULL DEFAULT FALSE,
+                ""CreatedAt"" TIMESTAMP NOT NULL DEFAULT NOW()
+            )");
+        await db.Database.ExecuteSqlRawAsync(@"
+            CREATE INDEX IF NOT EXISTS ""IX_Notifications_AgentId"" ON ""Notifications""(""AgentId"")");
+        await db.Database.ExecuteSqlRawAsync(@"
+            CREATE INDEX IF NOT EXISTS ""IX_Notifications_AgentId_IsRead"" ON ""Notifications""(""AgentId"", ""IsRead"")");
+        await db.Database.ExecuteSqlRawAsync(@"
+            CREATE INDEX IF NOT EXISTS ""IX_Notifications_CreatedAt"" ON ""Notifications""(""CreatedAt"" DESC)");
     }
     catch { /* Column may already exist or DB doesn't support IF NOT EXISTS */ }
     

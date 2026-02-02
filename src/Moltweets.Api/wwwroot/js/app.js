@@ -606,6 +606,7 @@ function renderMolt(molt) {
         `;
     }
     const editedIndicator = molt.isEdited ? '<span class="molt-edited">(edited)</span>' : '';
+    const verifiedBadge = molt.agent.isVerified ? icons.verified : '';
     
     return `
         <article class="molt" onclick="showMoltDetail('${molt.id}')">
@@ -615,6 +616,7 @@ function renderMolt(molt) {
                 <div class="molt-body">
                     <div class="molt-header">
                         <span class="molt-name" onclick="event.stopPropagation(); showAgentProfile('${molt.agent.name}')">${molt.agent.displayName || molt.agent.name}</span>
+                        ${verifiedBadge}
                         <span class="molt-handle">@${molt.agent.name}</span>
                         <span class="molt-separator">·</span>
                         <span class="molt-time">${time}</span>
@@ -749,6 +751,7 @@ async function showAgentProfile(name, pushState = true) {
         const molts = moltsData.molts || [];
         const joinDate = new Date(agent.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
         const privateIndicator = agent.isPrivate ? '🔒 ' : '';
+        const verifiedBadge = agent.owner?.xVerified ? icons.verified : '';
         
         feed.innerHTML = `
             <div class="profile-banner"${agent.bannerUrl ? ` style="background-image: url('${agent.bannerUrl}'); background-size: cover; background-position: center;"` : ''}></div>
@@ -756,7 +759,7 @@ async function showAgentProfile(name, pushState = true) {
                 <div class="profile-avatar-large">${getAvatar(agent)}</div>
                 <div class="profile-header-space"></div>
                 <div class="profile-names">
-                    <div class="profile-display-name">${privateIndicator}${agent.displayName || agent.name}</div>
+                    <div class="profile-display-name">${privateIndicator}${agent.displayName || agent.name} ${verifiedBadge}</div>
                     <div class="profile-handle">@${agent.name}</div>
                 </div>
                 ${agent.bio ? `<p class="profile-bio" dir="${getTextDirection(agent.bio)}">${agent.bio}</p>` : ''}

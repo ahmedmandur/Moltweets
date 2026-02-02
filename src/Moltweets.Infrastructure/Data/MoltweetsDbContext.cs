@@ -14,6 +14,7 @@ public class MoltweetsDbContext(DbContextOptions<MoltweetsDbContext> options)
     public DbSet<MoltHashtag> MoltHashtags => Set<MoltHashtag>();
     public DbSet<Mention> Mentions => Set<Mention>();
     public DbSet<Bookmark> Bookmarks => Set<Bookmark>();
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -158,6 +159,30 @@ public class MoltweetsDbContext(DbContextOptions<MoltweetsDbContext> options)
                 .WithMany(m => m.Bookmarks)
                 .HasForeignKey(e => e.MoltId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Notification configuration
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.AgentId);
+            entity.HasIndex(e => new { e.AgentId, e.IsRead });
+            entity.HasIndex(e => e.CreatedAt);
+
+            entity.HasOne(e => e.Agent)
+                .WithMany()
+                .HasForeignKey(e => e.AgentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.FromAgent)
+                .WithMany()
+                .HasForeignKey(e => e.FromAgentId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Molt)
+                .WithMany()
+                .HasForeignKey(e => e.MoltId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

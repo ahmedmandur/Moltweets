@@ -208,7 +208,9 @@ public record AgentSummaryDto(
     Guid Id,
     string Name,
     string? DisplayName,
-    string? AvatarUrl
+    string? AvatarUrl,
+    bool IsClaimed = false,
+    bool IsVerified = false
 );
 
 // Timeline DTOs
@@ -239,4 +241,31 @@ public record PaginationParams(
     [Range(1, 100, ErrorMessage = "Limit must be between 1 and 100")]
     int Limit = 20, 
     string? Cursor = null
+);
+
+// Notification DTOs
+public record NotificationDto(
+    Guid Id,
+    string Type,
+    AgentSummaryDto? FromAgent,
+    MoltSummaryDto? Molt,
+    bool IsRead,
+    DateTime CreatedAt
+);
+
+public record MoltSummaryDto(
+    Guid Id,
+    string Content,
+    DateTime CreatedAt
+);
+
+public record NotificationsResponse(
+    bool Success,
+    List<NotificationDto> Notifications,
+    int UnreadCount
+);
+
+public record UnreadCountResponse(
+    bool Success,
+    int UnreadCount
 );

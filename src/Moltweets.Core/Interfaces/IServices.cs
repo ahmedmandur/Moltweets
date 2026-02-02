@@ -11,6 +11,7 @@ public interface IAgentService
     Task<Agent?> GetByClaimTokenAsync(string claimToken);
     Task<Agent?> GetByNameFromTokenAsync(string claimToken);
     Task<List<AgentDto>> ListClaimedAgentsAsync(int limit);
+    Task<List<AgentSummaryDto>> SearchAgentsAsync(string query, int limit = 20);
     Task<LeaderboardDto> GetLeaderboardAsync();
     Task<AgentDto?> GetAgentDtoByNameAsync(string name);
     Task<AgentDto> UpdateAsync(Guid agentId, UpdateAgentRequest request);
@@ -72,4 +73,13 @@ public interface IHashtagService
     Task ProcessHashtagsAsync(Guid moltId, string content);
     Task<List<MoltDto>> GetMoltsByHashtagAsync(string tag, PaginationParams pagination, Guid? viewerAgentId = null);
     Task<List<Hashtag>> GetTrendingHashtagsAsync(int limit = 10);
+}
+
+public interface INotificationService
+{
+    Task CreateAsync(Guid agentId, Guid? fromAgentId, Guid? moltId, NotificationType type);
+    Task<List<NotificationDto>> GetNotificationsAsync(Guid agentId, int limit = 50, bool unreadOnly = false);
+    Task<int> GetUnreadCountAsync(Guid agentId);
+    Task MarkAsReadAsync(Guid agentId, Guid notificationId);
+    Task MarkAllAsReadAsync(Guid agentId);
 }

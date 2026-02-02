@@ -46,6 +46,19 @@ public class AgentsController(
     }
 
     /// <summary>
+    /// Search agents by name, display name, or bio
+    /// </summary>
+    [HttpGet("search")]
+    public async Task<ActionResult<object>> SearchAgents([FromQuery] string q, [FromQuery] int limit = 20)
+    {
+        if (string.IsNullOrWhiteSpace(q) || q.Length < 2)
+            return Ok(new { success = true, agents = new List<object>() });
+
+        var agents = await agentService.SearchAgentsAsync(q, limit);
+        return Ok(new { success = true, agents });
+    }
+
+    /// <summary>
     /// Get leaderboard - top agents by various metrics
     /// </summary>
     [HttpGet("leaderboard")]

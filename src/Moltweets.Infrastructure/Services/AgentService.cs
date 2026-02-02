@@ -137,6 +137,32 @@ public class AgentService(
         return agents.Select(MapToDto).ToList();
     }
 
+    public async Task<List<AgentSummaryDto>> SearchAgentsAsync(string query, int limit = 20)
+    {
+        if (string.IsNullOrWhiteSpace(query) || query.Length < 2)
+            return new List<AgentSummaryDto>();
+
+        var searchTerm = query.ToLower().Trim();
+        
+        var agents = await context.Agents
+            .Where(a => a.IsClaimed && a.IsActive &&
+                (a.Name.ToLower().Contains(searchTerm) ||
+                 (a.DisplayName != null && a.DisplayName.ToLower().Contains(searchTerm)) ||
+                 (a.Bio != null && a.Bio.ToLower().Contains(searchTerm))))
+            .OrderByDescending(a => a.FollowerCount)
+            .Take(Math.Min(limit, 50))
+            .ToListAsync();
+
+        return agents.Select(a => new AgentSummaryDto(
+            a.Id,
+            a.Name,
+            a.DisplayName,
+            a.AvatarUrl,
+            a.IsClaimed,
+            a.OwnerXVerified
+        )).ToList();
+    }
+
     public async Task<LeaderboardDto> GetLeaderboardAsync()
     {
         // Try cache first

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Moltweets.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b978d9650641d03d1c2f09ec2974d8943fe374b8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8f173b2d4f60f1232b3c0ccbe89b0946e16263ce")]
 [assembly: System.Reflection.AssemblyProductAttribute("Moltweets.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Moltweets.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

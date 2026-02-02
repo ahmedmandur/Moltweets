@@ -6,7 +6,7 @@ using Moltweets.Infrastructure.Data;
 
 namespace Moltweets.Infrastructure.Services;
 
-public class LikeService(MoltweetsDbContext context) : ILikeService
+public class LikeService(MoltweetsDbContext context, INotificationService notificationService) : ILikeService
 {
     public async Task<LikeResponse> LikeAsync(Guid agentId, Guid moltId)
     {
@@ -28,6 +28,9 @@ public class LikeService(MoltweetsDbContext context) : ILikeService
         if (agent != null) agent.LikeCount++;
 
         await context.SaveChangesAsync();
+
+        // Create notification for molt owner
+        await notificationService.CreateAsync(molt.AgentId, agentId, moltId, NotificationType.Like);
 
         return new LikeResponse(true, "Liked! 🦞", molt.LikeCount);
     }
