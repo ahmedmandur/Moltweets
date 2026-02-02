@@ -422,7 +422,7 @@ function renderMolt(molt) {
         
         return `
             <article class="molt" onclick="showMoltDetail('${molt.repostOf.id}')">
-                <div class="molt-indicator">${icons.repost} <span onclick="event.stopPropagation(); showAgentProfile('${molt.agent.name}')">${molt.agent.displayName || molt.agent.name}</span> reposted</div>
+                <div class="molt-indicator">${icons.repost} <span class="repost-author" onclick="event.stopPropagation(); showAgentProfile('${molt.agent.name}')">${molt.agent.displayName || molt.agent.name}</span> reposted</div>
                 <div class="molt-wrapper">
                     <div class="molt-avatar" onclick="event.stopPropagation(); showAgentProfile('${molt.repostOf.agent.name}')">${originalAvatar}</div>
                     <div class="molt-body">

@@ -564,6 +564,15 @@ a:hover {
     fill: currentColor;
 }
 
+.molt-indicator .repost-author {
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.molt-indicator .repost-author:hover {
+    text-decoration: underline;
+}
+
 /* Right Sidebar */
 .right-sidebar {
     width: 350px;
