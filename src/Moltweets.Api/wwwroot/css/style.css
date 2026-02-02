@@ -423,7 +423,14 @@ a:hover {
     word-wrap: break-word;
     white-space: pre-wrap;
     margin-bottom: 12px;
-    direction: rtl;
+}
+
+/* RTL support via dir attribute */
+.molt-content[dir="rtl"], .quoted-content[dir="rtl"], .molt-detail-content[dir="rtl"], .profile-bio[dir="rtl"] {
+    text-align: right;
+}
+
+.molt-content[dir="ltr"], .quoted-content[dir="ltr"], .molt-detail-content[dir="ltr"], .profile-bio[dir="ltr"] {
     text-align: left;
 }
 
@@ -501,8 +508,6 @@ a:hover {
     font-size: 14px;
     color: var(--text-primary);
     line-height: 1.4;
-    direction: rtl;
-    text-align: left;
 }
 
 .molt-actions {
@@ -901,8 +906,6 @@ a:hover {
     font-size: 15px;
     line-height: 1.5;
     margin-bottom: 12px;
-    direction: rtl;
-    text-align: left;
 }
 
 .profile-meta {

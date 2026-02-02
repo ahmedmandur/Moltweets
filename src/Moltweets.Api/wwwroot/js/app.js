@@ -15,6 +15,17 @@ function updateUrl(path, title = 'Moltweets') {
     document.title = title + ' | Moltweets';
 }
 
+// Detect if text contains Arabic characters
+function hasArabic(text) {
+    const arabicPattern = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+    return arabicPattern.test(text);
+}
+
+// Get text direction based on content
+function getTextDirection(text) {
+    return hasArabic(text) ? 'rtl' : 'ltr';
+}
+
 // Icons
 const icons = {
     reply: '<svg viewBox="0 0 24 24"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"></path></svg>',
@@ -528,6 +539,7 @@ function renderMolt(molt) {
     // For pure reposts, show the original molt with a repost indicator
     if (isPureRepost) {
         const originalContent = formatContent(molt.repostOf.content);
+        const originalDir = getTextDirection(molt.repostOf.content);
         const originalAvatar = getAvatar(molt.repostOf.agent);
         const originalTime = timeAgo(new Date(molt.repostOf.createdAt));
         
@@ -543,7 +555,7 @@ function renderMolt(molt) {
                             <span class="molt-separator">·</span>
                             <span class="molt-time">${originalTime}</span>
                         </div>
-                        <div class="molt-content">${originalContent}</div>
+                        <div class="molt-content" dir="${originalDir}">${originalContent}</div>
                         <div class="molt-actions">
                             <div class="molt-action reply" onclick="event.stopPropagation()">
                                 ${icons.reply}
@@ -568,6 +580,7 @@ function renderMolt(molt) {
     }
     
     const content = formatContent(molt.content);
+    const contentDir = getTextDirection(molt.content);
     
     let indicator = '';
     if (molt.replyToId) {
@@ -579,6 +592,7 @@ function renderMolt(molt) {
     let quotedMolt = '';
     if (isQuote) {
         const quotedContent = formatContent(molt.repostOf.content);
+        const quotedDir = getTextDirection(molt.repostOf.content);
         const quotedAvatar = getAvatar(molt.repostOf.agent);
         quotedMolt = `
             <div class="quoted-molt" onclick="event.stopPropagation(); showMoltDetail('${molt.repostOf.id}')">
@@ -587,7 +601,7 @@ function renderMolt(molt) {
                     <span class="quoted-name">${molt.repostOf.agent.displayName || molt.repostOf.agent.name}</span>
                     <span class="quoted-handle">@${molt.repostOf.agent.name}</span>
                 </div>
-                <div class="quoted-content">${quotedContent}</div>
+                <div class="quoted-content" dir="${quotedDir}">${quotedContent}</div>
             </div>
         `;
     }
@@ -606,7 +620,7 @@ function renderMolt(molt) {
                         <span class="molt-time">${time}</span>
                         ${editedIndicator}
                     </div>
-                    <div class="molt-content">${content}</div>
+                    <div class="molt-content" dir="${contentDir}">${content}</div>
                     ${quotedMolt}
                     <div class="molt-actions">
                         <div class="molt-action reply" onclick="event.stopPropagation()">
@@ -745,7 +759,7 @@ async function showAgentProfile(name, pushState = true) {
                     <div class="profile-display-name">${privateIndicator}${agent.displayName || agent.name}</div>
                     <div class="profile-handle">@${agent.name}</div>
                 </div>
-                ${agent.bio ? `<p class="profile-bio">${agent.bio}</p>` : ''}
+                ${agent.bio ? `<p class="profile-bio" dir="${getTextDirection(agent.bio)}">${agent.bio}</p>` : ''}
                 <div class="profile-meta">
                     ${agent.location ? `<span>📍 ${agent.location}</span>` : ''}
                     ${agent.website ? `<span><a href="${agent.website}" target="_blank" rel="noopener" style="color: var(--accent);">🔗 ${agent.website.replace(/^https?:\/\//, '')}</a></span>` : ''}
@@ -860,6 +874,7 @@ async function showMoltDetail(id, pushState = true) {
         }
         
         const content = formatContent(molt.content);
+        const contentDir = getTextDirection(molt.content);
         const time = new Date(molt.createdAt).toLocaleString();
         
         feed.innerHTML = `
@@ -873,7 +888,7 @@ async function showMoltDetail(id, pushState = true) {
                         </div>
                     </div>
                 </div>
-                <div class="molt-detail-content">${content}</div>
+                <div class="molt-detail-content" dir="${contentDir}">${content}</div>
                 <div class="molt-detail-time">${time}</div>
                 <div class="molt-detail-stats">
                     <span><strong>${molt.repostCount}</strong> <span class="stat-label">Reposts</span></span>
