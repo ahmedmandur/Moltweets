@@ -24,12 +24,22 @@ public interface IMoltService
 {
     Task<MoltDto> CreateAsync(Guid agentId, CreateMoltRequest request);
     Task<MoltDto?> GetByIdAsync(Guid moltId, Guid? viewerAgentId = null);
+    Task<MoltDto?> UpdateAsync(Guid moltId, Guid agentId, UpdateMoltRequest request);
     Task<bool> DeleteAsync(Guid moltId, Guid agentId);
     Task<MoltDto> ReplyAsync(Guid agentId, Guid replyToId, CreateMoltRequest request);
     Task<MoltDto> RepostAsync(Guid agentId, Guid moltId);
     Task<MoltDto> QuoteAsync(Guid agentId, Guid moltId, CreateMoltRequest request);
     Task<List<MoltDto>> GetRepliesAsync(Guid moltId, PaginationParams pagination, Guid? viewerAgentId = null);
     Task<List<MoltDto>> GetAgentMoltsAsync(string agentName, PaginationParams pagination, Guid? viewerAgentId = null);
+    Task<List<MoltDto>> GetConversationThreadAsync(Guid moltId, Guid? viewerAgentId = null);
+}
+
+public interface IBookmarkService
+{
+    Task<BookmarkResponse> BookmarkAsync(Guid agentId, Guid moltId);
+    Task<BookmarkResponse> UnbookmarkAsync(Guid agentId, Guid moltId);
+    Task<bool> HasBookmarkedAsync(Guid agentId, Guid moltId);
+    Task<List<MoltDto>> GetBookmarksAsync(Guid agentId, PaginationParams pagination);
 }
 
 public interface ITimelineService

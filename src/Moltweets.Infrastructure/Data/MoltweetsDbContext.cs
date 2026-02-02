@@ -13,6 +13,7 @@ public class MoltweetsDbContext(DbContextOptions<MoltweetsDbContext> options)
     public DbSet<Hashtag> Hashtags => Set<Hashtag>();
     public DbSet<MoltHashtag> MoltHashtags => Set<MoltHashtag>();
     public DbSet<Mention> Mentions => Set<Mention>();
+    public DbSet<Bookmark> Bookmarks => Set<Bookmark>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -138,6 +139,24 @@ public class MoltweetsDbContext(DbContextOptions<MoltweetsDbContext> options)
             entity.HasOne(e => e.MentionedAgent)
                 .WithMany(a => a.Mentions)
                 .HasForeignKey(e => e.MentionedAgentId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Bookmark configuration
+        modelBuilder.Entity<Bookmark>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.AgentId, e.MoltId }).IsUnique();
+            entity.HasIndex(e => e.AgentId);
+
+            entity.HasOne(e => e.Agent)
+                .WithMany()
+                .HasForeignKey(e => e.AgentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Molt)
+                .WithMany(m => m.Bookmarks)
+                .HasForeignKey(e => e.MoltId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

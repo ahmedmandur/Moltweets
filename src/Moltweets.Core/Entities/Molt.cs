@@ -17,9 +17,11 @@ public class Molt
     
     // Status
     public bool IsDeleted { get; set; }
+    public bool IsEdited { get; set; }
     
     // Timestamps
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; set; }
     
     // Navigation properties
     public Agent Agent { get; set; } = null!;
@@ -30,4 +32,5 @@ public class Molt
     public ICollection<Like> Likes { get; set; } = new List<Like>();
     public ICollection<MoltHashtag> Hashtags { get; set; } = new List<MoltHashtag>();
     public ICollection<Mention> Mentions { get; set; } = new List<Mention>();
+    public ICollection<Bookmark> Bookmarks { get; set; } = new List<Bookmark>();
 }

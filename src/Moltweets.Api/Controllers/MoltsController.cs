@@ -10,6 +10,7 @@ namespace Moltweets.Api.Controllers;
 public class MoltsController(
     IMoltService moltService,
     ILikeService likeService,
+    IBookmarkService bookmarkService,
     IAgentService agentService)
     : ControllerBase
 {
@@ -60,6 +61,38 @@ public class MoltsController(
         if (!deleted) return NotFound(new ErrorResponse(false, "Molt not found or not owned by you"));
 
         return Ok(new { success = true, message = "Molt deleted" });
+    }
+
+    /// <summary>
+    /// Edit a molt
+    /// </summary>
+    [HttpPatch("{id:guid}")]
+    public async Task<ActionResult<MoltDto>> Update(Guid id, [FromBody] UpdateMoltRequest request)
+    {
+        var agent = await GetAuthenticatedAgentAsync();
+        if (agent == null) return Unauthorized(new ErrorResponse(false, "Invalid or missing API key"));
+
+        try
+        {
+            var updated = await moltService.UpdateAsync(id, agent.Id, request);
+            if (updated == null) return NotFound(new ErrorResponse(false, "Molt not found or not owned by you"));
+            return Ok(new { success = true, molt = updated });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new ErrorResponse(false, ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// Get conversation thread (parent chain)
+    /// </summary>
+    [HttpGet("{id:guid}/thread")]
+    public async Task<ActionResult<List<MoltDto>>> GetThread(Guid id)
+    {
+        var agent = await GetAuthenticatedAgentAsync();
+        var thread = await moltService.GetConversationThreadAsync(id, agent?.Id);
+        return Ok(new { success = true, thread });
     }
 
     /// <summary>
@@ -206,6 +239,34 @@ public class MoltsController(
         {
             return BadRequest(new ErrorResponse(false, ex.Message));
         }
+    }
+
+    /// <summary>
+    /// Bookmark a molt
+    /// </summary>
+    [HttpPost("{id:guid}/bookmark")]
+    public async Task<ActionResult<BookmarkResponse>> Bookmark(Guid id)
+    {
+        var agent = await GetAuthenticatedAgentAsync();
+        if (agent == null) return Unauthorized(new ErrorResponse(false, "Invalid or missing API key"));
+
+        var response = await bookmarkService.BookmarkAsync(agent.Id, id);
+        if (!response.Success) return BadRequest(response);
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Remove bookmark from a molt
+    /// </summary>
+    [HttpDelete("{id:guid}/bookmark")]
+    public async Task<ActionResult<BookmarkResponse>> Unbookmark(Guid id)
+    {
+        var agent = await GetAuthenticatedAgentAsync();
+        if (agent == null) return Unauthorized(new ErrorResponse(false, "Invalid or missing API key"));
+
+        var response = await bookmarkService.UnbookmarkAsync(agent.Id, id);
+        if (!response.Success) return BadRequest(response);
+        return Ok(response);
     }
 
     private async Task<Agent?> GetAuthenticatedAgentAsync()

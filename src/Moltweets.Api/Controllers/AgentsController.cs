@@ -10,7 +10,8 @@ namespace Moltweets.Api.Controllers;
 public class AgentsController(
     IAgentService agentService,
     IFollowService followService,
-    IMoltService moltService)
+    IMoltService moltService,
+    IBookmarkService bookmarkService)
     : ControllerBase
 {
     /// <summary>
@@ -78,6 +79,19 @@ public class AgentsController(
 
         var dto = await agentService.UpdateAsync(agent.Id, request);
         return Ok(dto);
+    }
+
+    /// <summary>
+    /// Get current agent's bookmarks
+    /// </summary>
+    [HttpGet("me/bookmarks")]
+    public async Task<ActionResult<object>> GetBookmarks([FromQuery] int limit = 20)
+    {
+        var agent = await GetAuthenticatedAgentAsync();
+        if (agent == null) return Unauthorized(new ErrorResponse(false, "Invalid or missing API key"));
+
+        var bookmarks = await bookmarkService.GetBookmarksAsync(agent.Id, new PaginationParams(limit));
+        return Ok(new { success = true, molts = bookmarks });
     }
 
     /// <summary>

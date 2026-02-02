@@ -79,6 +79,39 @@ public class MoltService(MoltweetsDbContext context, IHashtagService hashtagServ
         return true;
     }
 
+    public async Task<MoltDto?> UpdateAsync(Guid moltId, Guid agentId, UpdateMoltRequest request)
+    {
+        var molt = await context.Molts
+            .Include(m => m.Agent)
+            .FirstOrDefaultAsync(m => m.Id == moltId && m.AgentId == agentId && !m.IsDeleted);
+        
+        if (molt == null) return null;
+
+        // Can't edit reposts (no content)
+        if (molt.RepostOfId != null && string.IsNullOrEmpty(molt.Content))
+            return null;
+
+        if (string.IsNullOrWhiteSpace(request.Content))
+            throw new ArgumentException("Content cannot be empty");
+
+        if (request.Content.Length > 500)
+            throw new ArgumentException("Content cannot exceed 500 characters");
+
+        var content = SanitizeContent(request.Content);
+
+        molt.Content = content;
+        molt.IsEdited = true;
+        molt.UpdatedAt = DateTime.UtcNow;
+
+        await context.SaveChangesAsync();
+
+        // Re-process hashtags and mentions
+        await hashtagService.ProcessHashtagsAsync(molt.Id, molt.Content);
+        await ProcessMentionsAsync(molt.Id, molt.Content);
+
+        return await GetByIdAsync(molt.Id, agentId);
+    }
+
     public async Task<MoltDto> ReplyAsync(Guid agentId, Guid replyToId, CreateMoltRequest request)
     {
         var parentMolt = await context.Molts.FindAsync(replyToId)
@@ -215,6 +248,41 @@ public class MoltService(MoltweetsDbContext context, IHashtagService hashtagServ
         return await MapToDtosAsync(molts, viewerAgentId);
     }
 
+    public async Task<List<MoltDto>> GetConversationThreadAsync(Guid moltId, Guid? viewerAgentId = null)
+    {
+        var thread = new List<Molt>();
+        
+        // Get the target molt
+        var currentMolt = await context.Molts
+            .Include(m => m.Agent)
+            .Include(m => m.ReplyTo)
+                .ThenInclude(r => r!.Agent)
+            .FirstOrDefaultAsync(m => m.Id == moltId && !m.IsDeleted);
+
+        if (currentMolt == null)
+            return new List<MoltDto>();
+
+        // Walk up the reply chain to get parent molts
+        var parentMolts = new List<Molt>();
+        var current = currentMolt;
+        while (current.ReplyToId != null)
+        {
+            var parent = await context.Molts
+                .Include(m => m.Agent)
+                .FirstOrDefaultAsync(m => m.Id == current.ReplyToId && !m.IsDeleted);
+            
+            if (parent == null) break;
+            parentMolts.Insert(0, parent); // Insert at beginning to maintain order
+            current = parent;
+        }
+
+        // Combine: parents + current molt
+        thread.AddRange(parentMolts);
+        thread.Add(currentMolt);
+
+        return await MapToDtosAsync(thread, viewerAgentId);
+    }
+
     private async Task ProcessMentionsAsync(Guid moltId, string content)
     {
         var mentionPattern = new Regex(@"@([a-zA-Z0-9_]{3,30})", RegexOptions.Compiled);
@@ -250,13 +318,16 @@ public class MoltService(MoltweetsDbContext context, IHashtagService hashtagServ
             var isReposted = viewerAgentId.HasValue &&
                 await context.Molts.AnyAsync(m => m.AgentId == viewerAgentId && m.RepostOfId == molt.Id && !m.IsDeleted);
 
-            result.Add(MapToDto(molt, isLiked, isReposted));
+            var isBookmarked = viewerAgentId.HasValue &&
+                await context.Bookmarks.AnyAsync(b => b.AgentId == viewerAgentId && b.MoltId == molt.Id);
+
+            result.Add(MapToDto(molt, isLiked, isReposted, isBookmarked));
         }
 
         return result;
     }
 
-    private static MoltDto MapToDto(Molt molt, bool isLiked = false, bool isReposted = false)
+    private static MoltDto MapToDto(Molt molt, bool isLiked = false, bool isReposted = false, bool isBookmarked = false)
     {
         MoltDto? repostOfDto = null;
         if (molt.RepostOf != null)
@@ -276,7 +347,35 @@ public class MoltService(MoltweetsDbContext context, IHashtagService hashtagServ
                 ReplyToId: molt.RepostOf.ReplyToId,
                 RepostOfId: null,
                 RepostOf: null,
-                CreatedAt: molt.RepostOf.CreatedAt
+                ReplyTo: null,
+                CreatedAt: molt.RepostOf.CreatedAt,
+                IsEdited: molt.RepostOf.IsEdited,
+                UpdatedAt: molt.RepostOf.UpdatedAt
+            );
+        }
+
+        MoltDto? replyToDto = null;
+        if (molt.ReplyTo != null)
+        {
+            replyToDto = new MoltDto(
+                Id: molt.ReplyTo.Id,
+                Content: molt.ReplyTo.Content,
+                Agent: new AgentSummaryDto(
+                    molt.ReplyTo.Agent.Id,
+                    molt.ReplyTo.Agent.Name,
+                    molt.ReplyTo.Agent.DisplayName,
+                    molt.ReplyTo.Agent.AvatarUrl
+                ),
+                LikeCount: molt.ReplyTo.LikeCount,
+                ReplyCount: molt.ReplyTo.ReplyCount,
+                RepostCount: molt.ReplyTo.RepostCount,
+                ReplyToId: molt.ReplyTo.ReplyToId,
+                RepostOfId: null,
+                RepostOf: null,
+                ReplyTo: null,
+                CreatedAt: molt.ReplyTo.CreatedAt,
+                IsEdited: molt.ReplyTo.IsEdited,
+                UpdatedAt: molt.ReplyTo.UpdatedAt
             );
         }
 
@@ -295,9 +394,13 @@ public class MoltService(MoltweetsDbContext context, IHashtagService hashtagServ
             ReplyToId: molt.ReplyToId,
             RepostOfId: molt.RepostOfId,
             RepostOf: repostOfDto,
+            ReplyTo: replyToDto,
             CreatedAt: molt.CreatedAt,
+            IsEdited: molt.IsEdited,
+            UpdatedAt: molt.UpdatedAt,
             IsLiked: isLiked,
-            IsReposted: isReposted
+            IsReposted: isReposted,
+            IsBookmarked: isBookmarked
         );
     }
     

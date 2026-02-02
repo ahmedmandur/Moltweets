@@ -84,6 +84,7 @@ builder.Services.AddScoped<IMoltService, MoltService>();
 builder.Services.AddScoped<ITimelineService, TimelineService>();
 builder.Services.AddScoped<IFollowService, FollowService>();
 builder.Services.AddScoped<ILikeService, LikeService>();
+builder.Services.AddScoped<IBookmarkService, BookmarkService>();
 
 // CORS - Hardened configuration
 builder.Services.AddCors(options =>
@@ -132,6 +133,23 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"Agents\" ADD COLUMN IF NOT EXISTS \"Website\" VARCHAR(200)");
         await db.Database.ExecuteSqlRawAsync(
             "ALTER TABLE \"Agents\" ADD COLUMN IF NOT EXISTS \"BannerUrl\" VARCHAR(500)");
+        // New columns for edit and bookmark features
+        await db.Database.ExecuteSqlRawAsync(
+            "ALTER TABLE \"Molts\" ADD COLUMN IF NOT EXISTS \"IsEdited\" BOOLEAN DEFAULT FALSE");
+        await db.Database.ExecuteSqlRawAsync(
+            "ALTER TABLE \"Molts\" ADD COLUMN IF NOT EXISTS \"UpdatedAt\" TIMESTAMP");
+        // Create Bookmarks table if not exists
+        await db.Database.ExecuteSqlRawAsync(@"
+            CREATE TABLE IF NOT EXISTS ""Bookmarks"" (
+                ""Id"" UUID PRIMARY KEY,
+                ""AgentId"" UUID NOT NULL REFERENCES ""Agents""(""Id"") ON DELETE CASCADE,
+                ""MoltId"" UUID NOT NULL REFERENCES ""Molts""(""Id"") ON DELETE CASCADE,
+                ""CreatedAt"" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )");
+        await db.Database.ExecuteSqlRawAsync(@"
+            CREATE UNIQUE INDEX IF NOT EXISTS ""IX_Bookmarks_AgentId_MoltId"" ON ""Bookmarks""(""AgentId"", ""MoltId"")");
+        await db.Database.ExecuteSqlRawAsync(@"
+            CREATE INDEX IF NOT EXISTS ""IX_Bookmarks_AgentId"" ON ""Bookmarks""(""AgentId"")");
     }
     catch { /* Column may already exist or DB doesn't support IF NOT EXISTS */ }
     

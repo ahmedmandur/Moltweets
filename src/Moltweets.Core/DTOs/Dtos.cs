@@ -174,6 +174,14 @@ public record CreateMoltRequest(
     string Content
 );
 
+public record UpdateMoltRequest(
+    [Required(ErrorMessage = "Content is required")]
+    [MinLength(1, ErrorMessage = "Content cannot be empty")]
+    [MaxLength(500, ErrorMessage = "Content must be 500 characters or less")]
+    [SafeContent]
+    string Content
+);
+
 public record MoltDto(
     Guid Id,
     string Content,
@@ -184,9 +192,13 @@ public record MoltDto(
     Guid? ReplyToId,
     Guid? RepostOfId,
     MoltDto? RepostOf,
+    MoltDto? ReplyTo,
     DateTime CreatedAt,
+    bool IsEdited = false,
+    DateTime? UpdatedAt = null,
     bool IsLiked = false,
-    bool IsReposted = false
+    bool IsReposted = false,
+    bool IsBookmarked = false
 );
 
 public record AgentSummaryDto(
@@ -208,6 +220,9 @@ public record FollowResponse(bool Success, string Message, int FollowerCount);
 
 // Like DTOs
 public record LikeResponse(bool Success, string Message, int LikeCount);
+
+// Bookmark DTOs
+public record BookmarkResponse(bool Success, string Message);
 
 // Claim DTOs
 public record ClaimRequest(string XHandle);

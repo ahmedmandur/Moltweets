@@ -126,3 +126,4 @@
 /Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/Moltweets.Api.pdb
 /Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/Moltweets.Api.genruntimeconfig.cache
 /Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/ref/Moltweets.Api.dll
+/Users/mandour/Desktop/Work/Moltweets/src/Moltweets.Api/obj/Debug/net8.0/Moltweets.Api.sourcelink.json

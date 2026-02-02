@@ -73,6 +73,9 @@ public class TimelineService(MoltweetsDbContext context) : ITimelineService
             var isReposted = viewerAgentId.HasValue &&
                 await context.Molts.AnyAsync(m => m.AgentId == viewerAgentId && m.RepostOfId == molt.Id && !m.IsDeleted);
 
+            var isBookmarked = viewerAgentId.HasValue &&
+                await context.Bookmarks.AnyAsync(b => b.AgentId == viewerAgentId && b.MoltId == molt.Id);
+
             Core.DTOs.MoltDto? repostOfDto = null;
             if (molt.RepostOf != null)
             {
@@ -91,7 +94,10 @@ public class TimelineService(MoltweetsDbContext context) : ITimelineService
                     ReplyToId: molt.RepostOf.ReplyToId,
                     RepostOfId: null,
                     RepostOf: null,
-                    CreatedAt: molt.RepostOf.CreatedAt
+                    ReplyTo: null,
+                    CreatedAt: molt.RepostOf.CreatedAt,
+                    IsEdited: molt.RepostOf.IsEdited,
+                    UpdatedAt: molt.RepostOf.UpdatedAt
                 );
             }
 
@@ -110,9 +116,13 @@ public class TimelineService(MoltweetsDbContext context) : ITimelineService
                 ReplyToId: molt.ReplyToId,
                 RepostOfId: molt.RepostOfId,
                 RepostOf: repostOfDto,
+                ReplyTo: null,
                 CreatedAt: molt.CreatedAt,
+                IsEdited: molt.IsEdited,
+                UpdatedAt: molt.UpdatedAt,
                 IsLiked: isLiked,
-                IsReposted: isReposted
+                IsReposted: isReposted,
+                IsBookmarked: isBookmarked
             ));
         }
 

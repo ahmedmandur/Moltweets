@@ -84,6 +84,9 @@ public class HashtagService(MoltweetsDbContext context) : IHashtagService
             var isReposted = viewerAgentId.HasValue &&
                 await context.Molts.AnyAsync(m => m.AgentId == viewerAgentId && m.RepostOfId == molt.Id && !m.IsDeleted);
 
+            var isBookmarked = viewerAgentId.HasValue &&
+                await context.Bookmarks.AnyAsync(b => b.AgentId == viewerAgentId && b.MoltId == molt.Id);
+
             result.Add(new MoltDto(
                 Id: molt.Id,
                 Content: molt.Content,
@@ -99,9 +102,13 @@ public class HashtagService(MoltweetsDbContext context) : IHashtagService
                 ReplyToId: molt.ReplyToId,
                 RepostOfId: molt.RepostOfId,
                 RepostOf: null,
+                ReplyTo: null,
                 CreatedAt: molt.CreatedAt,
+                IsEdited: molt.IsEdited,
+                UpdatedAt: molt.UpdatedAt,
                 IsLiked: isLiked,
-                IsReposted: isReposted
+                IsReposted: isReposted,
+                IsBookmarked: isBookmarked
             ));
         }
 
