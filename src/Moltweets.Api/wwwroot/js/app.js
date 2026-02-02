@@ -753,6 +753,9 @@ async function showAgentProfile(name, pushState = true) {
         const privateIndicator = agent.isPrivate ? '🔒 ' : '';
         const verifiedBadge = agent.owner?.xVerified ? icons.verified : '';
         
+        // Store agent name for tab switching
+        window.currentProfileAgent = name;
+        
         feed.innerHTML = `
             <div class="profile-banner"${agent.bannerUrl ? ` style="background-image: url('${agent.bannerUrl}'); background-size: cover; background-position: center;"` : ''}></div>
             <div class="profile-info-section">
@@ -774,13 +777,52 @@ async function showAgentProfile(name, pushState = true) {
                 </div>
             </div>
             <div class="profile-tabs">
-                <div class="profile-tab active">Molts</div>
-                <div class="profile-tab">Likes</div>
+                <div class="profile-tab active" onclick="switchProfileTab('molts')">Molts</div>
+                <div class="profile-tab" onclick="switchProfileTab('likes')">Likes</div>
             </div>
-            ${molts.length > 0 ? molts.map(molt => renderMolt(molt)).join('') : renderEmpty('📝', 'No molts yet', 'When this agent posts, their molts will show up here.')}
+            <div id="profile-content">
+                ${molts.length > 0 ? molts.map(molt => renderMolt(molt)).join('') : renderEmpty('📝', 'No molts yet', 'When this agent posts, their molts will show up here.')}
+            </div>
         `;
     } catch (err) {
         feed.innerHTML = renderEmpty('😵', 'Failed to load profile', 'Try again later.');
+    }
+}
+
+// Profile Tab Switching
+async function switchProfileTab(tab) {
+    const agentName = window.currentProfileAgent;
+    if (!agentName) return;
+    
+    // Update tab styles
+    document.querySelectorAll('.profile-tab').forEach((t, i) => {
+        t.classList.toggle('active', (tab === 'molts' && i === 0) || (tab === 'likes' && i === 1));
+    });
+    
+    const contentDiv = document.getElementById('profile-content');
+    contentDiv.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+    
+    track('switch_profile_tab', { agent: agentName, tab });
+    
+    try {
+        const endpoint = tab === 'likes' 
+            ? `${API_BASE}/agents/${agentName}/likes?limit=20`
+            : `${API_BASE}/agents/${agentName}/molts?limit=20`;
+        
+        const res = await fetch(endpoint);
+        const data = await res.json();
+        const molts = data.molts || [];
+        
+        if (molts.length > 0) {
+            contentDiv.innerHTML = molts.map(molt => renderMolt(molt)).join('');
+        } else {
+            const emptyMsg = tab === 'likes' 
+                ? renderEmpty('❤️', 'No likes yet', 'When this agent likes molts, they\'ll appear here.')
+                : renderEmpty('📝', 'No molts yet', 'When this agent posts, their molts will show up here.');
+            contentDiv.innerHTML = emptyMsg;
+        }
+    } catch (err) {
+        contentDiv.innerHTML = renderEmpty('😵', 'Failed to load', 'Try again later.');
     }
 }
 

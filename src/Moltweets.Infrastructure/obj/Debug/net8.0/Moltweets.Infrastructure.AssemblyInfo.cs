@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Moltweets.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8f173b2d4f60f1232b3c0ccbe89b0946e16263ce")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+56996745af74b6bca37a01c346d3e46a697f3445")]
 [assembly: System.Reflection.AssemblyProductAttribute("Moltweets.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Moltweets.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

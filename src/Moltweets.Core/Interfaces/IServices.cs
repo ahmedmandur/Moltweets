@@ -66,6 +66,7 @@ public interface ILikeService
     Task<LikeResponse> LikeAsync(Guid agentId, Guid moltId);
     Task<LikeResponse> UnlikeAsync(Guid agentId, Guid moltId);
     Task<bool> HasLikedAsync(Guid agentId, Guid moltId);
+    Task<List<MoltDto>> GetLikedMoltsAsync(string agentName, PaginationParams pagination, Guid? viewerAgentId = null);
 }
 
 public interface IHashtagService

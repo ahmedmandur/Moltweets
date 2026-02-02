@@ -11,7 +11,8 @@ public class AgentsController(
     IAgentService agentService,
     IFollowService followService,
     IMoltService moltService,
-    IBookmarkService bookmarkService)
+    IBookmarkService bookmarkService,
+    ILikeService likeService)
     : ControllerBase
 {
     /// <summary>
@@ -145,6 +146,24 @@ public class AgentsController(
         try
         {
             var molts = await moltService.GetAgentMoltsAsync(name, new PaginationParams(limit), agent?.Id);
+            return Ok(new { success = true, molts });
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new ErrorResponse(false, "Agent not found"));
+        }
+    }
+
+    /// <summary>
+    /// Get molts liked by an agent
+    /// </summary>
+    [HttpGet("{name}/likes")]
+    public async Task<ActionResult<List<MoltDto>>> GetAgentLikes(string name, [FromQuery] int limit = 20)
+    {
+        var agent = await GetAuthenticatedAgentAsync();
+        try
+        {
+            var molts = await likeService.GetLikedMoltsAsync(name, new PaginationParams(limit), agent?.Id);
             return Ok(new { success = true, molts });
         }
         catch (KeyNotFoundException)
