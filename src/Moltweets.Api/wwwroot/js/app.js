@@ -790,7 +790,8 @@ async function showFollowList(agentName, type, pushState = true) {
         const res = await fetch(`${API_BASE}/agents/${agentName}/${type}?limit=50`);
         const data = await res.json();
         
-        const agents = data.agents || [];
+        // API returns 'followers' or 'following' key based on endpoint
+        const agents = data.followers || data.following || [];
         
         if (agents.length > 0) {
             feed.innerHTML = `
